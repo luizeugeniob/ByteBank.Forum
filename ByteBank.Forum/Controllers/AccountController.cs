@@ -1,4 +1,8 @@
-﻿using ByteBank.Forum.ViewModels;
+﻿using ByteBank.Forum.Models;
+using ByteBank.Forum.ViewModels;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace ByteBank.Forum.Controllers
@@ -11,9 +15,27 @@ namespace ByteBank.Forum.Controllers
         }
         
         [HttpPost]
-        public ActionResult Register(AccountRegisterViewModel accountRegisterViewModel)
+        public async Task<ActionResult> Register(AccountRegisterViewModel model)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                var dbContext = new IdentityDbContext<ApplicationUser>("DefaultConnection");
+                var userStore = new UserStore<ApplicationUser>(dbContext);
+                var userManager = new UserManager<ApplicationUser>(userStore);
+
+                var newUser = new ApplicationUser
+                {
+                    Email = model.Email,
+                    UserName = model.UserName,
+                    FullName = model.FullName
+                };
+
+                await userManager.CreateAsync(newUser, model.Password);
+
+                return RedirectToAction("Index", "Home");
+            }
+
+            return View(model);
         }
     }
 }
