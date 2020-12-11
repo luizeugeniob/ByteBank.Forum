@@ -5,6 +5,7 @@ using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin;
 using Owin;
 using System.Data.Entity;
+using ByteBank.Forum.App_Start.Identity;
 
 [assembly: OwinStartup(typeof(ByteBank.Forum.Startup))]
 
@@ -34,6 +35,14 @@ namespace ByteBank.Forum
                 userValidator.RequireUniqueEmail = true;
 
                 userManager.UserValidator = userValidator;
+                userManager.PasswordValidator = new CustomPasswordValidator()
+                {
+                    LengthRequired = 6,
+                    MustHaveSpecialCharacters = true,
+                    MustHaveLowerCase = true,
+                    MustHaveUpperCase = true,
+                    MustHaveNumbers = true
+                };
 
                 return userManager;
             });
