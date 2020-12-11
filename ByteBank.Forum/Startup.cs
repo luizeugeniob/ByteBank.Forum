@@ -26,9 +26,9 @@ namespace ByteBank.Forum
             });
 
             builder.CreatePerOwinContext<UserManager<ApplicationUser>>(
-            (opcoes, contextoOwin) =>
+            (options, owinConxt) =>
             {
-                var userStore = contextoOwin.Get<IUserStore<ApplicationUser>>();
+                var userStore = owinConxt.Get<IUserStore<ApplicationUser>>();
                 var userManager = new UserManager<ApplicationUser>(userStore);
 
                 var userValidator = new UserValidator<ApplicationUser>(userManager);
@@ -43,6 +43,13 @@ namespace ByteBank.Forum
                     MustHaveUpperCase = true,
                     MustHaveNumbers = true
                 };
+
+                userManager.EmailService = new EmailService();
+
+                var dataProtectionProvider = options.DataProtectionProvider;
+                var dataProtector = dataProtectionProvider.Create("ByteBank.Forum");
+
+                userManager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(dataProtector);
 
                 return userManager;
             });
