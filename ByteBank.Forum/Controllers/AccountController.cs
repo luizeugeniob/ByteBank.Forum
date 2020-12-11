@@ -46,6 +46,10 @@ namespace ByteBank.Forum.Controllers
                     FullName = model.FullName
                 };
 
+                var user = UserManager.FindByEmail(model.Email);
+                if (user != null)
+                    return RedirectToAction("Index", "Home");
+
                 var result = await _userManager.CreateAsync(newUser, model.Password);
 
                 if (result.Succeeded)

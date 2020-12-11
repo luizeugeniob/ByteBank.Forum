@@ -28,7 +28,14 @@ namespace ByteBank.Forum
             (opcoes, contextoOwin) =>
             {
                 var userStore = contextoOwin.Get<IUserStore<ApplicationUser>>();
-                return new UserManager<ApplicationUser>(userStore);
+                var userManager = new UserManager<ApplicationUser>(userStore);
+
+                var userValidator = new UserValidator<ApplicationUser>(userManager);
+                userValidator.RequireUniqueEmail = true;
+
+                userManager.UserValidator = userValidator;
+
+                return userManager;
             });
         }
     }
