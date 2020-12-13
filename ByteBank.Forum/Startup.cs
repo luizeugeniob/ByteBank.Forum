@@ -1,13 +1,15 @@
-﻿using ByteBank.Forum.Models;
+﻿using ByteBank.Forum.App_Start.Identity;
+using ByteBank.Forum.Models;
 using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.Owin;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin;
-using Owin;
-using System.Data.Entity;
-using ByteBank.Forum.App_Start.Identity;
 using Microsoft.Owin.Security.Cookies;
+using Microsoft.Owin.Security.Google;
+using Owin;
 using System;
+using System.Configuration;
+using System.Data.Entity;
 
 [assembly: OwinStartup(typeof(ByteBank.Forum.Startup))]
 
@@ -75,6 +77,18 @@ namespace ByteBank.Forum
             builder.UseCookieAuthentication(new CookieAuthenticationOptions
             {
                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie
+            });
+
+            builder.UseCookieAuthentication(new CookieAuthenticationOptions
+            {
+                AuthenticationType = DefaultAuthenticationTypes.ExternalCookie
+            });
+
+            builder.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions
+            {
+                ClientId = ConfigurationManager.AppSettings["google:client_id"],
+                ClientSecret = ConfigurationManager.AppSettings["google:clien_secret"],
+                Caption = "Google"
             });
         }
     }
