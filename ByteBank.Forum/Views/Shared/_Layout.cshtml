@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNet.Identity
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -16,18 +18,29 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Fórum ByteBank", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>@Html.ActionLink("About", "About", "Home")</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
+                    <li>@Html.ActionLink("Criar novo tópico", "Create", "Topic")</li>
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
-                    <li>@Html.ActionLink("Registrar", "Register", "Account")</li>
+                    @if (Request.IsAuthenticated)
+                    {
+                        using (Html.BeginForm("Logoff", "Account", FormMethod.Post, new { id = "form_logoff" })) { }
+
+                        <li><p class="navbar-text"> Olá, @User.Identity.GetUserName() </p></li>
+                        <li><a href="javascript:document.getElementById('form_logoff').submit()"> Logoff </a></li>
+                    }
+                    else
+                    {
+                        <li>@Html.ActionLink("Registrar", "Register", "Account")</li>
+                        <li>@Html.ActionLink("Login", "Login", "Account")</li>
+                    }
                 </ul>
+
             </div>
         </div>
     </div>

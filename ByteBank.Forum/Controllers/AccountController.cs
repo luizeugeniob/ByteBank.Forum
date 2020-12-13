@@ -2,7 +2,7 @@
 using ByteBank.Forum.ViewModels;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
-using System;
+using Microsoft.Owin.Security;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -26,6 +26,32 @@ namespace ByteBank.Forum.Controllers
             set
             {
                 _userManager = value;
+            }
+        }
+
+        private SignInManager<ApplicationUser, string> _signInManager;
+        public SignInManager<ApplicationUser, string> SignInManager
+        {
+            get
+            {
+                if (_signInManager == null)
+                {
+                    var contextOwin = HttpContext.GetOwinContext();
+                    _signInManager = contextOwin.GetUserManager<SignInManager<ApplicationUser, string>>();
+                }
+                return _signInManager;
+            }
+            set
+            {
+                _signInManager = value;
+            }
+        }
+
+        public IAuthenticationManager AuthenticationManager
+        {
+            get
+            {
+                return Request.GetOwinContext().Authentication;
             }
         }
 
@@ -54,7 +80,7 @@ namespace ByteBank.Forum.Controllers
 
                 if (result.Succeeded)
                 {
-                    await SendConfirmationEmailAsync(user);
+                    await SendConfirmationEmailAsync(newUser);
 
                     return View("WaitingConfirmation");
                 }
@@ -79,6 +105,146 @@ namespace ByteBank.Forum.Controllers
                 return RedirectToAction("Index", "Home");
 
             return View("Error");
+        }
+
+        public async Task<ActionResult> Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Login(AccountLoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserManager.FindByEmailAsync(model.Email);
+
+                if (user == null)
+                    return InvalidEmailOrPassword();
+
+                var result =
+                    await SignInManager.PasswordSignInAsync(
+                        user.UserName,
+                        model.Password,
+                        isPersistent: model.KeepLogged,
+                        shouldLockout: true);
+
+                switch (result)
+                {
+                    case SignInStatus.Success:
+
+                        if (!user.EmailConfirmed)
+                        {
+                            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+                            return View("WaitingConfirmation");
+                        }
+
+                        return RedirectToAction("Index", "Home");
+                    case SignInStatus.LockedOut:
+                        return await UserLockedOutAsync(user, model);
+                    default:
+                        return InvalidEmailOrPassword();
+                }
+            }
+
+            return View(model);
+        }
+
+        public ActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> ForgotPassword(AccountForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
+                {
+                    var token = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+
+                    var callbackUrl =
+                        Url.Action(
+                           "ResetPassword",
+                           "Account",
+                           new { userId = user.Id, token = token },
+                           Request.Url.Scheme);
+
+                    await UserManager.SendEmailAsync(
+                        user.Id,
+                        "Fórum ByteBank - Alteração de Senha",
+                        $"Clique aqui {callbackUrl} para alterar sua senha!");
+                }
+
+                return View("ResetPasswordEmailSent");
+            }
+
+            return View();
+        }
+
+        public ActionResult ResetPassword(string userId, string token)
+        {
+            var model = new AccountResetPasswordViewModel
+            {
+                UserId = userId,
+                Token = token
+            };
+
+            return View(model);
+        }
+        
+        [HttpPost]
+        public async Task<ActionResult> ResetPassword(AccountResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = 
+                    await UserManager.ResetPasswordAsync(
+                        model.UserId,
+                        model.Token,
+                        model.NewPassword);
+
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+
+                AddErrors(result);
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Logoff()
+        {
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
+            return RedirectToAction("Index", "Home");
+        }
+
+        private ActionResult InvalidEmailOrPassword()
+        {
+            ModelState.AddModelError("", "Email ou senha incorretos");
+            return View("Login");
+        }
+
+        private async Task<ActionResult> UserLockedOutAsync(ApplicationUser user, AccountLoginViewModel model)
+        {
+            var isPasswordCorrect =
+                await UserManager.CheckPasswordAsync(
+                    user,
+                    model.Password);
+
+            if (isPasswordCorrect)
+            {
+                ModelState.AddModelError("", "A conta está bloqueada!");
+                return View("Login");
+            }
+            else
+                return InvalidEmailOrPassword();
         }
 
         private async Task SendConfirmationEmailAsync(ApplicationUser user)
