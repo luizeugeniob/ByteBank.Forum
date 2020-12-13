@@ -109,7 +109,30 @@ namespace ByteBank.Forum.Controllers
         {
             var loginInfo = await SignInManager.AuthenticationManager.GetExternalLoginInfoAsync();
 
-            return null;
+            var exsistingUser = await UserManager.FindByEmailAsync(loginInfo.Email);
+            if (exsistingUser != null)
+            {
+                return View("Error");
+            }
+
+            var user = new ApplicationUser
+            {
+                Email = loginInfo.Email,
+                UserName = loginInfo.Email,
+                FullName = loginInfo.ExternalIdentity.FindFirstValue(
+                    loginInfo.ExternalIdentity.NameClaimType)
+            };
+
+            var result = await UserManager.CreateAsync(user);
+            if (result.Succeeded)
+            {
+                var resultAddLogin =
+                    await UserManager.AddLoginAsync(user.Id, loginInfo.Login);
+                if (resultAddLogin.Succeeded)
+                    return RedirectToAction("Index", "Home");
+            }
+
+            return View("Error");
         }
 
         public async Task<ActionResult> EmailConfirmation(string userId, string token)
