@@ -84,16 +84,19 @@ namespace ByteBank.Forum
             builder.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions
             {
                 ClientId = ConfigurationManager.AppSettings["google:client_id"],
-                ClientSecret = ConfigurationManager.AppSettings["google:clien_secret"],
+                ClientSecret = ConfigurationManager.AppSettings["google:client_secret"],
                 Caption = "Google"
             });
 
-            CreateRoles();
+            using (var dbContext = new IdentityDbContext<ApplicationUser>("DefaultConnection"))
+            {
+                CreateRoles(dbContext);
+                CreateAdmin(dbContext);
+            }
         }
 
-        private void CreateRoles()
+        private void CreateRoles(IdentityDbContext<ApplicationUser> dbContext)
         {
-            using (var dbContext = new IdentityDbContext<ApplicationUser>("DefaultConnection"))
             using (var roleStore = new RoleStore<IdentityRole>(dbContext))
             using (var roleManager = new RoleManager<IdentityRole>(roleStore))
             {
@@ -103,6 +106,32 @@ namespace ByteBank.Forum
                 if (roleManager.RoleExists(RolesNames.Moderator))
                     roleManager.Create(new IdentityRole(RolesNames.Moderator));
             };
+        }
+
+        private void CreateAdmin(IdentityDbContext<ApplicationUser> dbContext)
+        {
+            using (var userStore = new UserStore<ApplicationUser>(dbContext))
+            using (var userManager = new UserManager<ApplicationUser>(userStore))
+            {
+                var adminEmail = ConfigurationManager.AppSettings["admin:email"];
+                var adminUser = userManager.FindByEmail(adminEmail);
+
+                if (adminUser != null)
+                    return;
+
+                adminUser = new ApplicationUser
+                {
+                    Email = adminEmail,
+                    UserName = ConfigurationManager.AppSettings["admin:username"],
+                    EmailConfirmed = true
+                };
+
+                userManager.Create(
+                    adminUser,
+                    ConfigurationManager.AppSettings["admin:password"]);
+
+                userManager.AddToRole(adminUser.Id, RolesNames.Admin);
+            }
         }
     }
 }
