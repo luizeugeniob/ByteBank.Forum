@@ -100,10 +100,10 @@ namespace ByteBank.Forum
             using (var roleStore = new RoleStore<IdentityRole>(dbContext))
             using (var roleManager = new RoleManager<IdentityRole>(roleStore))
             {
-                if (roleManager.RoleExists(RolesNames.Admin))
+                if (!roleManager.RoleExists(RolesNames.Admin))
                     roleManager.Create(new IdentityRole(RolesNames.Admin));
 
-                if (roleManager.RoleExists(RolesNames.Moderator))
+                if (!roleManager.RoleExists(RolesNames.Moderator))
                     roleManager.Create(new IdentityRole(RolesNames.Moderator));
             };
         }
