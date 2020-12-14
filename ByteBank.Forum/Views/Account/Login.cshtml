@@ -1,4 +1,6 @@
-﻿@model ByteBank.Forum.ViewModels.AccountLoginViewModel
+﻿@using Microsoft.Owin.Security
+
+@model ByteBank.Forum.ViewModels.AccountLoginViewModel
 
 @{
     ViewBag.Title = "Login";
@@ -16,4 +18,21 @@
     @Html.ActionLink("Esqueci minha senha", "ForgotPassword");
 
     <input type="submit" value="Login" />
+}
+
+@using (Html.BeginForm("LoginByExternalAuthentication", "Account"))
+{
+    var providers = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+
+    if (providers != null && providers.Any())
+    {
+        foreach (var provider in providers)
+        {
+            <button class="btn" type="submit" value="@provider.AuthenticationType" name="provider">
+                @provider.Caption
+            </button>
+        }
+    }
+
+    <input type="submit" value="Google" class="btn btn-default" />
 }

@@ -191,6 +191,29 @@ namespace ByteBank.Forum.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public ActionResult LoginByExternalAuthentication(string provider)
+        {
+            SignInManager.AuthenticationManager.Challenge(new AuthenticationProperties
+            {
+                RedirectUri = Url.Action("LoginByExternalAuthenticationCallback")
+            }, provider);
+
+            return new HttpUnauthorizedResult();
+        }
+
+        public async Task<ActionResult> LoginByExternalAuthenticationCallback()
+        {
+            var loginInfo = await SignInManager.AuthenticationManager.GetExternalLoginInfoAsync();
+
+            var result = await SignInManager.ExternalSignInAsync(loginInfo, true);
+
+            if (result == SignInStatus.Success)
+                return RedirectToAction("Index", "Home");
+
+            return View("Error");
+        }
+
         public ActionResult ForgotPassword()
         {
             return View();
