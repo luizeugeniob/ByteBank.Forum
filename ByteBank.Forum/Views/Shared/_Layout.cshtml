@@ -31,7 +31,11 @@
                     {
                         using (Html.BeginForm("Logoff", "Account", FormMethod.Post, new { id = "form_logoff" })) { }
 
-                        <li><p class="navbar-text"> Olá, @User.Identity.GetUserName() </p></li>
+                        <li>
+                            <p class="navbar-text">
+                                Olá, @Html.ActionLink(@User.Identity.GetUserName(), "MyAccount", "Account")
+                            </p>
+                        </li>
                         <li><a href="javascript:document.getElementById('form_logoff').submit()"> Logoff </a></li>
                     }
                     else
