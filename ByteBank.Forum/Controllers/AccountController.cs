@@ -328,6 +328,28 @@ namespace ByteBank.Forum.Controllers
                 $"Bem vindo ao fórum ByteBank, clique aqui {callbackUrl} para confirmar seu email!");
         }
 
+        public async Task<ActionResult> MyAccount()
+        {
+            var userId = HttpContext.User.Identity.GetUserId();
+            var user = await UserManager.FindByIdAsync(userId);
+
+            var model = new AccountMyAccountViewModel
+            {
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                TwoFactorEnabled = user.TwoFactorEnabled,
+                PhoneNumberConfirmed = user.PhoneNumberConfirmed
+            };
+
+            return View(model);
+        }
+        
+        [HttpPost]
+        public async Task<ActionResult> MyAccount(AccountMyAccountViewModel model)
+        {
+            return View();
+        }
+
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)

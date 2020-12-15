@@ -175,6 +175,7 @@
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\AccountForgotPasswordViewModel.cs" />
     <Compile Include="ViewModels\AccountLoginViewModel.cs" />
+    <Compile Include="ViewModels\AccountMyAccountViewModel.cs" />
     <Compile Include="ViewModels\AccountRegisterViewModel.cs" />
     <Compile Include="ViewModels\AccountResetPasswordViewModel.cs" />
     <Compile Include="ViewModels\TopicCreateViewModel.cs" />
