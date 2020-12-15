@@ -23,10 +23,24 @@ namespace ByteBank.Forum
                 new IdentityDbContext<ApplicationUser>("DefaultConnection"));
 
             builder.CreatePerOwinContext<IUserStore<ApplicationUser>>(
-                (opcoes, contextoOwin) =>
+                (opcoes, owinContext) =>
                 {
-                    var dbContext = contextoOwin.Get<DbContext>();
+                    var dbContext = owinContext.Get<DbContext>();
                     return new UserStore<ApplicationUser>(dbContext);
+                });
+            
+            builder.CreatePerOwinContext<RoleStore<IdentityRole>>(
+                (opcoes, owinContext) =>
+                {
+                    var dbContext = owinContext.Get<DbContext>();
+                    return new RoleStore<IdentityRole>(dbContext);
+                });
+            
+            builder.CreatePerOwinContext<RoleManager<IdentityRole>>(
+                (opcoes, owinContext) =>
+                {
+                    var roleStore = owinContext.Get<RoleStore<IdentityRole>>();
+                    return new RoleManager<IdentityRole>(roleStore);
                 });
 
             builder.CreatePerOwinContext<UserManager<ApplicationUser>>(

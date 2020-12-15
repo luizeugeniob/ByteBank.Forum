@@ -1,8 +1,10 @@
 ﻿using ByteBank.Forum.Models;
 using ByteBank.Forum.ViewModels;
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.AspNet.Identity.Owin;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 
@@ -17,16 +19,26 @@ namespace ByteBank.Forum.Controllers
             get
             {
                 if (_userManager == null)
-                {
-                    var contextOwin = HttpContext.GetOwinContext();
-                    _userManager = contextOwin.GetUserManager<UserManager<ApplicationUser>>();
-                }
+                    _userManager = HttpContext.GetOwinContext().GetUserManager<UserManager<ApplicationUser>>();
+
                 return _userManager;
             }
-            set
+
+            set { _userManager = value; }
+        }
+
+        private RoleManager<IdentityRole> _roleManager;
+        public RoleManager<IdentityRole> RoleManager
+        {
+            get
             {
-                _userManager = value;
+                if (_roleManager == null)
+                    _roleManager = HttpContext.GetOwinContext().GetUserManager<RoleManager<IdentityRole>>();
+
+                return _roleManager;
             }
+
+            set { _roleManager = value; }
         }
 
         public ActionResult Index()
@@ -40,9 +52,12 @@ namespace ByteBank.Forum.Controllers
             return View(users);
         }
 
-        public ActionResult EditRoles(string id)
+        public async Task<ActionResult> EditRoles(string id)
         {
-            return View();
+            var user = await UserManager.FindByIdAsync(id);
+            var model = new UserEditRolesViewModel(user, RoleManager);
+
+            return View(model);
         }
     }
 }
