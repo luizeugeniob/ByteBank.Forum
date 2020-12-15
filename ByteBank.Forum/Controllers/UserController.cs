@@ -59,5 +59,39 @@ namespace ByteBank.Forum.Controllers
 
             return View(model);
         }
+
+        [HttpPost]
+        public async Task<ActionResult> EditRoles(UserEditRolesViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserManager.FindByIdAsync(model.Id);
+
+                var userRoles = await UserManager.GetRolesAsync(user.Id);
+
+                var removeResult = 
+                    await UserManager.RemoveFromRolesAsync(
+                        user.Id,
+                        userRoles.ToArray());
+
+                if (removeResult.Succeeded)
+                {
+                    var rolesSelectedByAdmin = model
+                        .UserRoles
+                        .Where(role => role.Selected)
+                        .Select(role => role.Name)
+                        .ToArray();
+
+                    var addResult = await UserManager.AddToRolesAsync(
+                        user.Id,
+                        rolesSelectedByAdmin);
+
+                    if (addResult.Succeeded)
+                        return RedirectToAction("Index");
+                }
+            }
+
+            return View();
+        }
     }
 }
