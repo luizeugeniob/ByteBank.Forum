@@ -245,6 +245,7 @@
     <Content Include="Views\Shared\EditorTemplates\UserRoleViewModel.cshtml" />
     <Content Include="Views\Account\MyAccount.cshtml" />
     <Content Include="Views\Account\VerificationCode.cshtml" />
+    <Content Include="Views\Account\TwoFactorVerification.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

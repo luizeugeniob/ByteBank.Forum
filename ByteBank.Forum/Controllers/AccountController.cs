@@ -181,14 +181,45 @@ namespace ByteBank.Forum.Controllers
                         }
 
                         return RedirectToAction("Index", "Home");
+
+                    case SignInStatus.RequiresVerification:
+                        return RedirectToAction("TwoFactorVerification");
+
                     case SignInStatus.LockedOut:
                         return await UserLockedOutAsync(user, model);
+
                     default:
                         return InvalidEmailOrPassword();
                 }
             }
 
             return View(model);
+        }
+
+        public async Task<ActionResult> TwoFactorVerification()
+        {
+            var result = await SignInManager.SendTwoFactorCodeAsync("SMS");
+
+            if (result)
+                return View();
+
+            return View("Error");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> TwoFactorVerification(string token)
+        {
+            var result = 
+                await SignInManager.TwoFactorSignInAsync(
+                    "SMS",
+                    token,
+                    isPersistent: false,
+                    rememberBrowser: false);
+
+            if (result == SignInStatus.Success)
+                return RedirectToAction("Index", "Home");
+
+            return View("Error");
         }
 
         [HttpPost]
@@ -357,6 +388,8 @@ namespace ByteBank.Forum.Controllers
 
                 if (!user.PhoneNumberConfirmed)
                     await SendConfirmationSmsAsync(user);
+                else
+                    user.TwoFactorEnabled = model.TwoFactorEnabled;
 
                 var result = await UserManager.UpdateAsync(user);
 
