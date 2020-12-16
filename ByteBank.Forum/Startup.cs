@@ -63,6 +63,7 @@ namespace ByteBank.Forum
                     };
 
                     userManager.EmailService = new EmailService();
+                    userManager.SmsService = new SmsService();
 
                     var dataProtectionProvider = options.DataProtectionProvider;
                     var dataProtector = dataProtectionProvider.Create("ByteBank.Forum");

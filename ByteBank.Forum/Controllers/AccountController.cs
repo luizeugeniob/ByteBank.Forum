@@ -347,7 +347,39 @@ namespace ByteBank.Forum.Controllers
         [HttpPost]
         public async Task<ActionResult> MyAccount(AccountMyAccountViewModel model)
         {
+            if (ModelState.IsValid)
+            {
+                var userId = HttpContext.User.Identity.GetUserId();
+                var user = await UserManager.FindByIdAsync(userId);
+
+                user.FullName = model.FullName;
+                user.PhoneNumber = model.PhoneNumber;
+
+                if (!user.PhoneNumberConfirmed)
+                    await SendConfirmationSmsAsync(user);
+
+                var result = await UserManager.UpdateAsync(user);
+
+                if (result.Succeeded)
+                    return RedirectToAction("Index", "Home");
+
+                AddErrors(result);
+            }
+
             return View();
+        }
+
+        private async Task SendConfirmationSmsAsync(ApplicationUser user)
+        {
+            var confirmationToken = 
+                await UserManager.GenerateChangePhoneNumberTokenAsync(
+                    user.Id, 
+                    user.PhoneNumber
+                );
+
+            await UserManager.SendSmsAsync(
+                user.Id,
+                $"Token de confirmação: {confirmationToken}");
         }
 
         private void AddErrors(IdentityResult result)
