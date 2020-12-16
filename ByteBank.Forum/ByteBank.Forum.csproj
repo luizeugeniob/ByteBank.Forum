@@ -226,7 +226,6 @@
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>
-    <Content Include="Views\Web.config" />
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
@@ -245,6 +244,7 @@
     <Content Include="Views\User\EditRoles.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\UserRoleViewModel.cshtml" />
     <Content Include="Views\Account\MyAccount.cshtml" />
+    <Content Include="Views\Account\VerificationCode.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

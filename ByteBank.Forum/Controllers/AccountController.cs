@@ -105,7 +105,7 @@ namespace ByteBank.Forum.Controllers
             return new HttpUnauthorizedResult();
         }
 
-        public async Task< ActionResult> RegisterByExternalAuthenticationCallback()
+        public async Task<ActionResult> RegisterByExternalAuthenticationCallback()
         {
             var loginInfo = await SignInManager.AuthenticationManager.GetExternalLoginInfoAsync();
 
@@ -259,13 +259,13 @@ namespace ByteBank.Forum.Controllers
 
             return View(model);
         }
-        
+
         [HttpPost]
         public async Task<ActionResult> ResetPassword(AccountResetPasswordViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var result = 
+                var result =
                     await UserManager.ResetPasswordAsync(
                         model.UserId,
                         model.Token,
@@ -343,7 +343,7 @@ namespace ByteBank.Forum.Controllers
 
             return View(model);
         }
-        
+
         [HttpPost]
         public async Task<ActionResult> MyAccount(AccountMyAccountViewModel model)
         {
@@ -371,15 +371,36 @@ namespace ByteBank.Forum.Controllers
 
         private async Task SendConfirmationSmsAsync(ApplicationUser user)
         {
-            var confirmationToken = 
+            var confirmationToken =
                 await UserManager.GenerateChangePhoneNumberTokenAsync(
-                    user.Id, 
+                    user.Id,
                     user.PhoneNumber
                 );
 
             await UserManager.SendSmsAsync(
                 user.Id,
                 $"Token de confirmação: {confirmationToken}");
+        }
+
+        public ActionResult VerificationCode()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> VerificationCode(string token)
+        {
+            var userId = HttpContext.User.Identity.GetUserId();
+            var user = await UserManager.FindByIdAsync(userId);
+
+            var result = await UserManager.ChangePhoneNumberAsync(userId, user.PhoneNumber, token);
+
+            if (result.Succeeded)
+                return RedirectToAction("Index", "Home");
+
+            AddErrors(result);
+
+            return View();
         }
 
         private void AddErrors(IdentityResult result)
