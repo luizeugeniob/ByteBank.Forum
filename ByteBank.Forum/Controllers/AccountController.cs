@@ -209,7 +209,7 @@ namespace ByteBank.Forum.Controllers
         [HttpPost]
         public async Task<ActionResult> TwoFactorVerification(AccountTwoFactorVerificationViewModel model)
         {
-            var result = 
+            var result =
                 await SignInManager.TwoFactorSignInAsync(
                     "SMS",
                     model.Token,
@@ -318,6 +318,13 @@ namespace ByteBank.Forum.Controllers
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public ActionResult ForgotBrowser()
+        {
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie);
+            return RedirectToAction("MyAccount");
         }
 
         private ActionResult InvalidEmailOrPassword()

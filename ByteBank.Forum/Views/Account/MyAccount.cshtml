@@ -7,6 +7,11 @@
 
 <h2>Minha Conta</h2>
 
+@using (Html.BeginForm("ForgotBrowser", "Account", FormMethod.Post, new { id = "form_forgot_browser" }))
+{
+
+}
+
 @using (Html.BeginForm())
 {
     @Html.ValidationSummary()
@@ -27,6 +32,8 @@
         <br />
         @Html.EditorFor(model => model.TwoFactorEnabled)
         <br />
+
+        <a href="javascript:document.getElementById('form_forgot_browser').submit()"> Esquecer este navegador </a>
     }
     else
     {
