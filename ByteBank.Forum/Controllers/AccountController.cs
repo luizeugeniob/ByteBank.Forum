@@ -327,6 +327,15 @@ namespace ByteBank.Forum.Controllers
             return RedirectToAction("MyAccount");
         }
 
+        [HttpPost]
+        public async Task<ActionResult> LogOutEverywhere()
+        {
+            var userId = HttpContext.User.Identity.GetUserId();
+            await UserManager.UpdateSecurityStampAsync(userId);
+
+            return RedirectToAction("Index", "Home");
+        }
+
         private ActionResult InvalidEmailOrPassword()
         {
             ModelState.AddModelError("", "Email ou senha incorretos");

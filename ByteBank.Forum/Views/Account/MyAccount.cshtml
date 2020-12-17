@@ -12,6 +12,11 @@
 
 }
 
+@using (Html.BeginForm("LogOutEverywhere", "Account", FormMethod.Post, new { id = "form_log_out_everywhere" }))
+{
+
+}
+
 @using (Html.BeginForm())
 {
     @Html.ValidationSummary()
@@ -43,6 +48,12 @@
 
         @Html.ActionLink("Verificar o token recebido!", "VerificationCode")
     }
+
+    <br />
+
+    <a href="javascript:document.getElementById('form_log_out_everywhere').submit()"> Deslogar de todos os locais </a>
+
+    <br />
 
     <input type="submit" value="Salvar" class="btn btn-default" />
 }
