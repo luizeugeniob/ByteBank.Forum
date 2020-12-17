@@ -192,6 +192,7 @@
     <Compile Include="ViewModels\AccountMyAccountViewModel.cs" />
     <Compile Include="ViewModels\AccountRegisterViewModel.cs" />
     <Compile Include="ViewModels\AccountResetPasswordViewModel.cs" />
+    <Compile Include="ViewModels\AccountTwoFactorVerificationViewModel.cs" />
     <Compile Include="ViewModels\TopicCreateViewModel.cs" />
     <Compile Include="ViewModels\UserEditRolesViewModel.cs" />
     <Compile Include="ViewModels\UserRoleViewModel.cs" />

@@ -207,14 +207,14 @@ namespace ByteBank.Forum.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> TwoFactorVerification(string token)
+        public async Task<ActionResult> TwoFactorVerification(AccountTwoFactorVerificationViewModel model)
         {
             var result = 
                 await SignInManager.TwoFactorSignInAsync(
                     "SMS",
-                    token,
-                    isPersistent: false,
-                    rememberBrowser: false);
+                    model.Token,
+                    isPersistent: model.KeepLogged,
+                    rememberBrowser: model.RememberThisComputer);
 
             if (result == SignInStatus.Success)
                 return RedirectToAction("Index", "Home");
