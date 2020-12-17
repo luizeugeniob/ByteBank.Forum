@@ -98,7 +98,14 @@ namespace ByteBank.Forum
 
             builder.UseCookieAuthentication(new CookieAuthenticationOptions
             {
-                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                Provider = new CookieAuthenticationProvider
+                {
+                    OnValidateIdentity = 
+                    SecurityStampValidator.OnValidateIdentity<UserManager<ApplicationUser>, ApplicationUser>(
+                        TimeSpan.FromSeconds(0),
+                        (manager, user) => manager.CreateIdentityAsync(user, DefaultAuthenticationTypes.ApplicationCookie))
+                }
             });
 
             builder.UseExternalSignInCookie(DefaultAuthenticationTypes.ExternalCookie);
